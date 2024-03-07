@@ -1,0 +1,34 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus
+    restart: unless-stopped
+    user: "${UID}:${GID}"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/data:/prometheus
+      - ./prometheus/etc:/etc/prometheus
+  node_exporter:
+    image: prom/node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--path.procfs=/host/proc'
+    ports:
+      - "9100:9100"
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    user: "${UID}:${GID}"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
